@@ -1,5 +1,3 @@
-#practice aqi
-
 from prophet import Prophet
 from prophet.diagnostics import *
 import pandas as pd
@@ -16,24 +14,13 @@ data = data.head(9357)
 #converting date to the right format, the day is first or set the format to mixed
 #datetime.strftime is used to set it to the desired format.
 data["Date"] = pd.to_datetime(data["Date"], format = "mixed").dt.strftime("%Y-%m-%d")
-print(data.info())
 #In this dataset, the null value is set to -200
-#we need to check to see the number of null values and set them to na
-print(data.isin([-200]).sum())
 #replacing the null values to na using numpy.nan variable
 data.replace(to_replace = -200, value = np.nan)
-#count the number of null values with isnull
-print(data.isnull().sum())
 #now replacing the null values with mean value, since inplace is set to true, then the replacing is done on the current string.
 data.fillna(data.mean(numeric_only = True), inplace = True)
-
 #formatting time to change the dot to : as the seperator.
 data["Time"] = data["Time"].apply(lambda x:x.replace(".",":"))
-
-#create ds to store the date and time
-
-#encountered and error while concating, it seems it doesn't allows reindexing on an axis with duplicate labels
-#try creating a new dataframe to store this
 
 #creating a new dataframe to be used for the Prophet model.
 data1 = pd.DataFrame()
@@ -47,9 +34,13 @@ data1["y"] = data["RH"]
 model = Prophet()
 #fitting data in model
 model.fit(data1)
+#This dataset provides hourly relative humidity values. Asking the user to input the number of days to predict.
+days = int(input("Enter days of Relative humidity to predict: \n"))
 #Creating future dataframe
-future = model.make_future_dataframe(periods = 365, freq = "h")
+future = model.make_future_dataframe(periods = days, freq = "d")
 #predicting forecast based on future dataframe
 forecast = model.predict(future)
 #plotting the model
 fig = model.plot_components(forecast)
+#showing the model
+fig.show()
